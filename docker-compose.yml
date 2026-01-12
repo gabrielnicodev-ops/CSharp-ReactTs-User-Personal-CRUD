@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: user_mgmt_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: user_db
+      MYSQL_ROOT_PASSWORD: your_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    build: ./Backend
+    container_name: user_mgmt_api
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=db;Database=user_db;Uid=root;Pwd=your_password;
+    ports:
+      - "5000:8080"
+
+  frontend:
+    build: ./Frontend
+    container_name: user_mgmt_web
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:
